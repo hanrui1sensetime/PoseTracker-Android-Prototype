@@ -1,0 +1,16 @@
+{
+    "version": "1.0.0rc1",
+    "task": "Detector",
+    "models": [
+        {
+            "name": "rtmdet",
+            "net": "end2end.param",
+            "weights": "end2end.bin",
+            "backend": "ncnn",
+            "precision": "FP16",
+            "batch_size": 1,
+            "dynamic_shape": false
+        }
+    ],
+    "customs": []
+}

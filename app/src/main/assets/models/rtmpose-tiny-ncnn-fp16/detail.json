@@ -1,0 +1,39 @@
+{
+    "version": "1.0.0rc1",
+    "codebase": {
+        "task": "PoseDetection",
+        "codebase": "mmpose",
+        "version": "1.0.0rc0",
+        "pth": "/data1/hanrui/workspace/pose_tracker_ncnn_det_interval_5/mmdeploy_ncnn_rtmpose/coco_publish_rtmpose/rtmpose-tiny_simcc-aic-coco_pt-aic-coco_420e-256x192-cfc8f33d_20230126.pth",
+        "config": "../../pose_tracker_ncnn_det_interval_5/mmpose/configs/body_2d_keypoint/rtmpose/coco/rtmpose-tiny_8xb256-420e_coco-256x192.py"
+    },
+    "codebase_config": {
+        "type": "mmpose",
+        "task": "PoseDetection"
+    },
+    "onnx_config": {
+        "type": "onnx",
+        "export_params": true,
+        "keep_initializers_as_inputs": false,
+        "opset_version": 11,
+        "save_file": "end2end.onnx",
+        "input_names": [
+            "input"
+        ],
+        "output_names": [
+            "simcc_x",
+            "simcc_y"
+        ],
+        "input_shape": [
+            192,
+            256
+        ],
+        "optimize": true
+    },
+    "backend_config": {
+        "type": "ncnn",
+        "precision": "FP16",
+        "use_vulkan": false
+    },
+    "calib_config": {}
+}

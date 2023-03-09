@@ -1,0 +1,48 @@
+{
+    "version": "1.0.0rc1",
+    "codebase": {
+        "task": "ObjectDetection",
+        "codebase": "mmdet",
+        "version": "3.0.0rc2",
+        "pth": "/data1/hanrui/workspace/pose_tracker_ncnn_det_interval_5/mmdeploy_ncnn_rtmpose/rtmpose-checkpoints/rtmdet_nano_8xb32-100e_coco-obj365-person/rtmdet_nano_8xb32-100e_coco-obj365-person-05d8511e.pth",
+        "config": "/data1/hanrui/workspace/pose_tracker_ncnn_det_interval_5/mmdeploy_ncnn_rtmpose/rtmpose-checkpoints/rtmdet_nano_320-8xb32_coco-person.py"
+    },
+    "codebase_config": {
+        "type": "mmdet",
+        "task": "ObjectDetection",
+        "model_type": "ncnn_end2end",
+        "post_processing": {
+            "score_threshold": 0.05,
+            "confidence_threshold": 0.005,
+            "iou_threshold": 0.5,
+            "max_output_boxes_per_class": 200,
+            "pre_top_k": 5000,
+            "keep_top_k": 100,
+            "background_label_id": -1
+        }
+    },
+    "onnx_config": {
+        "type": "onnx",
+        "export_params": true,
+        "keep_initializers_as_inputs": false,
+        "opset_version": 11,
+        "save_file": "end2end.onnx",
+        "input_names": [
+            "input"
+        ],
+        "output_names": [
+            "detection_output"
+        ],
+        "input_shape": [
+            320,
+            320
+        ],
+        "optimize": true
+    },
+    "backend_config": {
+        "type": "ncnn",
+        "precision": "FP16",
+        "use_vulkan": false
+    },
+    "calib_config": {}
+}
