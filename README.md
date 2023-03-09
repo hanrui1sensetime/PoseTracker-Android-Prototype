@@ -23,15 +23,26 @@ export POSETRACKER_DEMO_ROOT=${PWD}
 ```
 wget https://github.com/opencv/opencv/releases/download/4.7.0/opencv-4.7.0-android-sdk.zip
 unzip opencv-4.7.0-android-sdk.zip
-ln -s OpenCV-android-sdk/sdk PoseTracker-Android-Prototype/openCVLibrary470
+cd PoseTracker-Android-Prototype/
+ln -s ../OpenCV-android-sdk/sdk/ openCVLibrary470
 ```
+
+Because of this repo uses Java rather than Kotlin, so please comment the line
+
+```
+// apply plugin: 'kotlin-android'
+```
+
+in `OpenCV-android-sdk/sdk/build.gradle`.
 
 **step 2.** Cross compile MMDeploy SDK.
 
 ```
+cd ${POSETRACKER_DEMO_ROOT}
 git clone -b dev-1.x https://github.com/open-mmlab/mmdeploy.git
+cd mmdeploy
 git submodule update --init
-mkdir -p mmdeploy/build && cd mmdeploy/build
+mkdir -p build && cd build
 ```
 
 Then you can follow [this doc](https://github.com/open-mmlab/mmdeploy/blob/dev-1.x/docs/en/01-how-to-build/android.md) to build mmdeploy sdk.
@@ -42,10 +53,10 @@ Then you can follow [this doc](https://github.com/open-mmlab/mmdeploy/blob/dev-1
 
 ```
 cd ${POSETRACKER_DEMO_ROOT}
-mkdir PoseTracker-Android-Prototype/app/src/main/jniLibs/arm64-v8a
+mkdir -p PoseTracker-Android-Prototype/app/src/main/jniLibs/arm64-v8a
 cp OpenCV-android-sdk/sdk/native/libs/arm64-v8a/libopencv_java4.so PoseTracker-Android-Prototype/app/src/main/jniLibs/arm64-v8a/
 cp mmdeploy/build/lib/libmmdeploy_java.so PoseTracker-Android-Prototype/app/src/main/jniLibs/arm64-v8a/
-cp ${NDK_PATH}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/x86_64-linux-android/libc++_shared.so PoseTracker-Android-Prototype/app/src/main/jniLibs/arm64-v8a/
+cp ${NDK_PATH}/sources/cxx-stl/llvm-libc++/libs/arm64-v8a/libc++_shared.so PoseTracker-Android-Prototype/app/src/main/jniLibs/arm64-v8a/
 ```
 
 In the bash code above, the ${NDK_PATH} can be found in
