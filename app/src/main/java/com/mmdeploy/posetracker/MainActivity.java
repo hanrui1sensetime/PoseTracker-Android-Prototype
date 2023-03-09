@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView videoFrameView;
     private PoseTracker poseTracker;
 
+    private long stateHandle;
     private int frameID;
 
     private VideoCapture videoCapture;
@@ -47,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        initMMDeploy();
+        stateHandle = initMMDeploy();
         setContentView(R.layout.activity_main);
         this.addVideoButton = (Button) findViewById(R.id.addVideoButton);
         this.videoFrameView = (ImageView) findViewById(R.id.videoFrameView);
@@ -72,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(intent,2);
     }
 
-    private void reload(String workDir)
+    private long initPoseTracker(String workDir)
     {
         String detModelPath=workDir + "/rtmdet-nano-ncnn-fp16";
         String poseModelPath=workDir + "/rtmpose-tiny-ncnn-fp16";
@@ -84,14 +85,20 @@ public class MainActivity extends AppCompatActivity {
         Context context = new Context();
         context.add(device);
         this.poseTracker = new mmdeploy.PoseTracker(detModel, poseModel, context);
+        mmdeploy.PoseTracker.Params params = this.poseTracker.initParams();
+        params.detInterval = 5;
+        params.poseMaxNumBboxes = 6;
+        long stateHandle = this.poseTracker.createState(params);
+        return stateHandle;
     }
 
-    private void initMMDeploy() {
+    private long initMMDeploy() {
         String workDir = PathUtils.getExternalAppFilesPath() + File.separator
                 + "file";
         if (ResourceUtils.copyFileFromAssets("models", workDir)){
-            reload(workDir);
+            return initPoseTracker(workDir);
         }
+        return -1;
     }
 
     @Override
@@ -111,7 +118,6 @@ public class MainActivity extends AppCompatActivity {
             String path =null;
             Uri uri = data.getData();
             System.out.printf("debugging what is uri scheme: %s\n", uri.getScheme());
-            // path = uri.getPath();
             Cursor cursor = getContentResolver().query(uri, null, null, null, null);
             if (cursor != null){
                 if (cursor.moveToFirst()){
@@ -119,11 +125,6 @@ public class MainActivity extends AppCompatActivity {
                 }
                 cursor.close();
             }
-            System.out.printf("debugging what is path: %s\n", path);
-            mmdeploy.PoseTracker.Params params = this.poseTracker.initParams();
-            params.detInterval = 5;
-            params.poseMaxNumBboxes = 6;
-            long stateHandle = this.poseTracker.createState(params);
 
             this.videoCapture = new VideoCapture(path, org.opencv.videoio.Videoio.CAP_ANDROID);
             if (this.videoCapture.isOpened()) {
@@ -143,6 +144,10 @@ public class MainActivity extends AppCompatActivity {
                     org.opencv.core.Mat cvMat = new org.opencv.core.Mat();
                     Imgproc.cvtColor(frame, cvMat, Imgproc.COLOR_RGB2BGR);
                     Mat mat = Utils.cvMatToMat(cvMat);
+                    if (stateHandle == -1) {
+                        System.out.println("State create failed!");
+                        return;
+                    }
                     mmdeploy.PoseTracker.Result[] results = poseTracker.apply(stateHandle, mat, -1);
                     Draw.drawPoseTrackerResult(frame, results);
                     Bitmap bitmap = null;
